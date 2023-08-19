@@ -6,6 +6,7 @@ contract Voting{
     Candidate[] candidates;
     // Voter[] private voters;//people allowed to vote
     mapping(address=>Voter) voters;
+    mapping(address=>bool) keyExists;
     mapping(address=>Voter) emptyvoters;
     eligiblityRequest[] eligiblityRequests;
     struct eligiblityRequest{
@@ -35,6 +36,7 @@ contract Voting{
     function allowToVote(address id) external {
         require(msg.sender==chairperson,'only allowed for chairperson');
         voters[id]=Voter(false);//add to voters list
+        keyExists[id]=true;
         for(uint i=0;i<eligiblityRequests.length;i++){
             if(eligiblityRequests[i].request==id){
                 eligiblityRequests[i].isDeleted=true;
@@ -64,7 +66,7 @@ contract Voting{
         return candidates;
     }
     function requestEligiblity(address id) external {
-        eligiblityRequests[eligiblityRequests.length]= eligiblityRequest(id,false);
+    eligiblityRequests.push(eligiblityRequest(id, false));
     }
     function getAllRequests() external view returns (address[] memory) {
     uint256 validRequestCount = 0;
@@ -89,6 +91,9 @@ contract Voting{
     }
 
     return requests;
+}
+function isEligible(address addr) public view returns (bool){
+   return keyExists[addr];
 }
 
 }
